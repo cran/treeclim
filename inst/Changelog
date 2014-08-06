@@ -1,0 +1,37 @@
+2014-08-05 Christian Zang <christian.zang@wzw.tum.de>
+
+	* Version 1.0.0: first major release, submitted to CRAN
+
+2014-08-05 Christian Zang <christian.zang@wzw.tum.de>
+
+	* Version 1.0.1: bug-fix release to make R CMD check --as-cran
+	happy
+
+	* DESCRIPTION: RcppArmadillo only in "LinkedTo", not in "Depends"
+
+2014-08-05 Christian Zang <christian.zang@wzw.tum.de>
+
+	* Version 1.0.2: small fix
+
+	* NAMESPACE: RcppArmadillo not imported anymore
+
+2014-08-05 Christian Zang <christian.zang@wzw.tum.de>
+
+	* Version 1.0.3: small fix
+
+	* NAMESPACE: declare faux global vars in generics to make R CMD
+	check happy
+
+2014-08-05 Christian Zang <christian.zang@wzw.tum.de>
+
+	* Version 1.0.4: small fix
+
+	* NAMESPACE: RcppArmadillo is imported again
+
+2014-08-06 Christian Zang <christian.zang@wzw.tum.de>
+
+	* Version 1.0.5: small fix
+
+	* NAMESPACE: RcppArmadillo is not imported
+
+	* DESCRIPTION: require R (>= 3.0.2)
