@@ -1,4 +1,4 @@
-5731f930f9cf7695bd34f339d22c2d94 *DESCRIPTION
+7b7e4aebf5e3b15348bae0f43d32116c *DESCRIPTION
 563b36eb94c534f6f668daadb8ce21bf *NAMESPACE
 1a8859df3271b749e88934967dee020f *R/RcppExports.R
 643b38eb4c39353ab630d59c040a4d4c *R/abbrev_name.R
@@ -6,13 +6,13 @@
 201b20e178c486671211795c5c204e91 *R/check_months.R
 5cbb15d744f961e5074e43a3aa411a04 *R/correct_continuous.R
 dd763acbf4f98b97c766a0ed5e24cecf *R/data.R
-89ff19d2956dd228029a9dd246cbdc8d *R/dcc.R
+3b6f314c2c38523a9a913fe155b5f3dd *R/dcc.R
 2ba32a1b58471789ba9febcb91d274fc *R/eval_selection.R
 bcc6177a751121c2956a17acbdde2f1c *R/exclude_from.R
 46807b32b9d885b2554d98396992a226 *R/format_months.R
 5c5548c2e7115aa3e7c71f7674fdc956 *R/generics.R
 141c47d0062cdf4e69b3af984d0ea253 *R/gershunov.R
-3e427e7631d64c0c993eecdf4ffea26c *R/init_boot_data.R
+ae3410c8256a0474dcee1b9f5928e33d *R/init_boot_data.R
 518c608f01fc39c1cd376781f1708c3c *R/is_continuous.R
 453e8b8c107c700b7aaede38dff67ff1 *R/make_pmat.R
 05e55f9c3ad5343b627123d7ffaced31 *R/ptest.R
@@ -38,12 +38,13 @@ b68a6e994cf7c6ec65517bf0e5ddb152 *data/rt_temp.rda
 4594c41fa624ce85fff45616e8c5c970 *data/spai020.rda
 c557a81726fffa32b0c81b03e9454db0 *data/spain_prec.rda
 a70fc7ce17d80f2ea78019b3bf0b7da7 *data/spain_temp.rda
-eb154ba5490e9d545caf3407416c98c5 *inst/Changelog
+2fcab6c297d5467b658ce3059db5281f *inst/CITATION
+bf8b86e864b4cc37c081d9d183c69862 *inst/Changelog
 d7d84be836d3abe70562bd9f4d07ec7e *man/abbrev_name.Rd
 e2f1b399ee8660dd5572e4e5d7087964 *man/as_tcclimate.Rd
 2d06480b1254dbd4dc7683fb758e00a8 *man/check_months.Rd
 fc016c3736b753cbec5eae42018c3ad2 *man/correct_continuous.Rd
-6eef043042ba942bb32d8903133f4a77 *man/dcc.Rd
+5bd93103bad47273bcffaad22c6c4ab2 *man/dcc.Rd
 0d76e7bf9317b0ef6669b1d901491e68 *man/eval_selection.Rd
 3f568b38ed3a861c0bbb4372f88be090 *man/exclude_from.Rd
 204b35e49ca57c1ea6b6128d2fac1110 *man/format_month.Rd
