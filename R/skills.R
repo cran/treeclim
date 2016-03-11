@@ -10,15 +10,15 @@
 ##' first general climate/growth relations are explored, and then the
 ##' strongest ones are deployed for reconstruction purposes.
 ##'
-##' \code{formula} is a one-sided formula of the form \code{~
-##' selection}, where `selection` is an aggregation modifier (one of
+##' \code{target} is an aggregation modifier (one of
 ##' \code{\link{.mean}}, \code{\link{.sum}}, and
 ##' \code{\link{.range}}). The user should be aware of the fact that
 ##' in case the aggregation modifier evaluates to more than one
 ##' variable (e.g., summer means for both temperature and
 ##' precipiation), a warning message is issued, and only the first
 ##' variable is taken into consideration for evaluating the
-##' reconstruction skills.
+##' reconstruction skills. If not specified, the selection from the
+##' original call to \code{\link{dcc}} is used.
 ##'
 ##' The type of regression model (ordinary least squares or
 ##' errors-in-variables via reduced major axis regression) can be
@@ -39,21 +39,23 @@
 ##' (RE), coefficient of efficiency (CE), and the Durban-Watson
 ##' statistic (DW) (Cook et al. 1994, Durbin and Watson, 1951).
 ##' @param object an object of class "tc_dcc" or "tc_seascorr"
-##' @param formula a formula specifying the regressand, optionally
-##' ommitting the intercept, see details
+##' @param target a treeclim selection modifier specifying the climate
+##'     target to be reconstructed, see below for details
 ##' @param model one of "ols" or "rma"
 ##' @param calibration which part of the data shall be used as
-##' calibration subset? Given as either a range of years, an integer
-##' corresponding to the first or last number of observations, or a
-##' percentage as character string corresponding to the part of the
-##' data set to be used as calibration subset.
+##'     calibration subset? Given as either a range of years, an
+##'     integer corresponding to the first or last number of
+##'     observations, or a percentage as character string
+##'     corresponding to the part of the data set to be used as
+##'     calibration subset.
 ##' @param timespan timespan to be used to truncate the data
 ##' @return 'skills' returns an 'object' of class '"tc_skills"'.
 ##' 
 ##' An object of class '"tc_skills"' is a list containing at least the
 ##' following components:
 ##' 
-##' \item{call}{the call made to function 'skills'}     
+##' \item{call}{the call made to function 'skills'}
+##' \item{target}{the target used for reconstruction}     
 ##' \item{r.cal}{the coefficient of correlation for the calibration
 ##' timespan}    
 ##' \item{r.full}{the coefficient of correlation for the complete data
@@ -86,14 +88,31 @@
 ##' @import lmtest
 ##' @import lmodel2
 ##' @export
-skills <- function(object, formula, model = "ols",
-                   calibration = "50%", timespan = NULL) {
+skills <- function(object, target = NULL, model = "ols",
+                  calibration = "50%", timespan = NULL) {
+
+  if (!any(c("tc_dcc", "tc_seascorr") == class(object)[1])) {
+    stop("`object` must be the result of functions `dcc` or `seascorr`.")
+  }
 
   Method <- NULL                        # to keep R CMD check happy
   
   mf <- match.call()
-  fo <- formula(mf$formula)
-  x_sel <- fo[[2]]
+  if (is.null(mf$target)) {
+      mf$target <- object$call$selection
+      if (is.null(mf$target)) {
+        mf$target <- -6:9
+      }
+  }
+  x_sel <- eval(mf$target)
+  if (is.numeric(x_sel)) {
+    x_sel <- eval(
+      substitute(
+        .range(.months = sel, .variables = NULL),
+        list(sel = x_sel)
+      )
+    )
+  }
     
   monthcheck <- check_months(eval(x_sel))
   if (monthcheck$check == FALSE) {
@@ -101,32 +120,23 @@ skills <- function(object, formula, model = "ols",
   }
   minmonth <- monthcheck$minmonth
   
-  if (any(c("tc_dcc", "tc_seascorr") == class(object)[1])) {
-    if (is.null(timespan)) {
-      climate <- object$truncated$climate
-      chrono <- object$truncated$tree
-    } else {
+  truncated_data <-
+      truncate_input(object$original$tree,
+                     object$original$climate, timespan,
+                     minmonth, FALSE, TRUE)
+  pad <- truncated_data$pad
+  climate <- truncated_data$climate
+  chrono <- truncated_data$chrono
+    
+  pmat <- make_pmat(climate, pad)
       
-      truncated_data <-
-        truncate_input(object$original$tree,
-                       object$original$climate, timespan,
-                       minmonth, FALSE)
-      climate <- truncated_data$climate
-      chrono <- truncated_data$chrono
-    }
-  } else {
-    stop("`object` must be the result of functions `dcc` or `seascorr`.")
-  }
-
-  pmat <- make_pmat(climate)
-  
-  X <- eval_selection(pmat, eval(x_sel))
+  X <- tc_design(eval(x_sel), pmat, check_2 = FALSE)
 
   all_years <- as.numeric(rownames(X$aggregate))
   m <- length(all_years)
   
   if (dim(X$aggregate)[2] > 1) {
-    warning("Reconstruction skills cannot be evaluated when using more than one independent variable. We use only the first variable.")
+    warning(paste0("Reconstruction skills cannot be evaluated when using more than one independent variable. We use only the first variable (by alphabet: ", X$names[1], ")."))
   }
 
   x <- X$aggregate[,1]
@@ -143,14 +153,14 @@ skills <- function(object, formula, model = "ols",
       perc <- as.numeric(perc)/100
       if (length(grep("^-.*$", calibration)) == 1) {
         ## calibration starts from distant (older) end
-        cal_index <- (m - floor(perc * m)):m
+        cal_index <- 1:ceiling(perc * m)
         ver_index <- c(1:m)[-cal_index]
         cal_str <-
           gettextf("%d percent (= %d years) of data starting at older end",
                    perc * 100, length(cal_index))
       } else {
         ## calibration starts from recent end
-        cal_index <- 1:ceiling(perc * m)
+        cal_index <- (m - floor(perc * m)):m
         ver_index <- c(1:m)[-cal_index]
         cal_str <-
           gettextf("%d percent (= %d years) of data starting at recent end",
@@ -163,17 +173,17 @@ skills <- function(object, formula, model = "ols",
     if (is.numeric(calibration)) {
       if (length(calibration) == 1) {
         if (calibration < m) {
-          if (sign(calibration) == 1) {
-            ## calibration starts x years from recent end
-            cal_index <- 1:calibration
-            ver_index <- c(1:m)[-cal_index]
-            cal_str <- gettextf("%d most recent observations", calibration)
-          } else {
+          if (sign(calibration) == -1) {
             ## calibration starts x years from older end
             calibration <- abs(calibration)
+            cal_index <- 1:calibration
+            ver_index <- c(1:m)[-cal_index]
+            cal_str <- gettextf("%d least recent observations", calibration)
+          } else {
+            ## calibration starts x years from younger end
             cal_index <- (m - calibration + 1):m
             ver_index <- c(1:m)[-cal_index]
-            cal_str <- gettextf("%d oldest observations", calibration)
+            cal_str <- gettextf("%d most recent observations", calibration)
           }
         } else {
           stop(gettextf("The provided data has only %d years - consider adapting `calibration` accordingly.", m))
@@ -208,7 +218,6 @@ skills <- function(object, formula, model = "ols",
     )
   
   ## models
-
   lm_cal <- lmodel2(x ~ y, data = cal,
                     range.x = "interval",
                     range.y = "interval",
@@ -246,6 +255,7 @@ skills <- function(object, formula, model = "ols",
   
   model_lm <- list(
     call       = mf,
+    target     = X$names[1],
     r.cal      = r_cal,
     r.full     = r_full,
     coef.cal   = c(intercept = intercept_cal, slope = slope_cal),

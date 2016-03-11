@@ -24,7 +24,7 @@ tc_mfunc <- function(chrono, climate, boot, sb, start_last,
   ## number of windows
   years <- as.numeric(rownames(climate$aggregate))
   nyears <- length(years)
-  win_num <- (length(chrono) - win_size + 1) %/% win_offset + 1
+  win_num <- floor((nyears - win_size + 1) / win_offset)
   if (win_num < 2) {
     stop(paste("Less than 2 windows. Consider a timespan greater than ",
                nyears, " or a win_size smaller than ", win_size, ".",
@@ -83,12 +83,14 @@ tc_mfunc <- function(chrono, climate, boot, sb, start_last,
     
   }
 
-  ## reorder output
-  result_matrix_coef <- result_matrix_coef[,win_num:1]
-  result_matrix_ci_upper <- result_matrix_ci_upper[,win_num:1]
-  result_matrix_ci_lower <- result_matrix_ci_lower[,win_num:1]
-  result_matrix_significant <- result_matrix_significant[,win_num:1]
-  win_years_string <- win_years_string[win_num:1]
+  ## reorder output if necessary
+  if (start_last) {
+    result_matrix_coef <- result_matrix_coef[,win_num:1]
+    result_matrix_ci_upper <- result_matrix_ci_upper[,win_num:1]
+    result_matrix_ci_lower <- result_matrix_ci_lower[,win_num:1]
+    result_matrix_significant <- result_matrix_significant[,win_num:1]
+    win_years_string <- win_years_string[win_num:1]
+  }
   
   out <- list(
     result = list()

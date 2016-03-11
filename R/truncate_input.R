@@ -13,7 +13,7 @@
 ##' @return a list of truncated data.frames for climate and tree data
 ##' @keywords manip internal
 truncate_input <- function(chrono, climate, timespan = NULL, minmonth,
-                           moving) {
+                           moving, silent = FALSE) {
 
   ## get time spans of both input data
   chrono_years <- as.numeric(row.names(chrono))
@@ -54,29 +54,22 @@ truncate_input <- function(chrono, climate, timespan = NULL, minmonth,
       }
     }
   }
-
-  ## report time span used
-  ## calculate timespan for analysis for reporting
-  if (!moving) {
-    cat("Running for timespan ", start_year, " - ", end_year, "...\n",
-        sep = "")
-  }
   
   ## check if a previous year is available in climatic data; otherwise
   ## set start_year + 1
-  if (minmonth < 0 && is.na(match((start_year - 1), climate_years))) { 
+  if (minmonth < 0 && !((start_year - 1) %in% climate_years)) { 
     offset <- 1
-    if (is.null(timespan)) {
-      warning(paste("treeclim tries to use the maximum overlap in timespan for chronology and climate data. The overlap starts in ",
+    if (is.null(timespan) & !silent) {
+      message(paste("treeclim tries to use the maximum overlap in timespan for chronology and climate data. The overlap starts in ",
                     start_year,
                     ", but to be able to use climate data from the previous year (as you chose by setting 'selection' accordingly), the analysis starts in ",
-                    start_year + 1, ".", sep = ""),
-              call. = FALSE)
+                    start_year + 1, ".", sep = ""))
     } else {
-      warning(paste("`start_year` is set from", start_year, "to",
-                    start_year + 1,
-                    "to be able to use climate data from the previous year."),
-              call. = FALSE)
+        if (!silent) {
+            message(paste("`start_year` is set from", start_year, "to",
+                          start_year + 1,
+                          "to be able to use climate data from the previous year."))
+        }
     }
     
   } else {
@@ -85,20 +78,31 @@ truncate_input <- function(chrono, climate, timespan = NULL, minmonth,
 
   ## make sure that data get truncated properly	
   if (minmonth < 0) { 
-    interval_climate <-(start_year - 1 + offset):end_year
+    interval_climate <- (start_year - 1 + offset):end_year
     interval_chrono <- (start_year + offset):end_year
+    pad <- FALSE
   } else {
-    interval_climate <-(start_year + offset):end_year
-    interval_chrono <- (start_year + 1 + offset):end_year
+    interval_climate <- (start_year + offset):end_year
+    interval_chrono <- (start_year + offset):end_year
+    pad <- TRUE
   }
 
-  a <- as.numeric(rownames(chrono)) %in% interval_chrono
+  a <- chrono_years %in% interval_chrono
   b <- climate[, 1] %in% interval_climate
+  
+  ## report time span used
+  ## calculate timespan for analysis for reporting
+  if (!moving & !silent) {
+    run_years <- chrono_years[a]
+    cat("Running for timespan ", run_years[1], " - ", tail(run_years, 1), "...\n",
+        sep = "")
+  }
 
   ## finally truncate data
   chrono_trunc <- chrono[a, 1]
   climate_trunc <- climate[b, ]
 
   list(chrono = chrono_trunc,
-       climate = climate_trunc)
+       climate = climate_trunc,
+       pad = pad)
 }

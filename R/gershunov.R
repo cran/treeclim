@@ -21,21 +21,18 @@
 ##' deviation of the simulated data to test for significantly higher
 ##' or lower low-frequency modulations.
 ##' @param x an object of class '"tc_dcc"' as returned from a call to
-##' \code{\link{dcc}} with moving correlations enabled
+##'     \code{\link{dcc}} with moving correlations enabled
 ##' @param boot \code{logical} shall the individual correlation be
-##' bootstrapped?  (see details)
-##' @param ci Significance level for testing, one of \code{c(0.01,
-##' 0.05, 0.1)}
+##'     bootstrapped?  (see details)
 ##' @param sb \code{logical} shall a status bar be drawn?
-##' @return a \code{data.frame} with columns for variable
-##' identification and logical flags for whether the low-frequency
-##' modulation of the correlation of this variable with tree-growth is
-##' higher than expected by chance, lower than expected by chance, or
-##' can be considered as noise.
+##' @return a \code{data.frame} with p values for the testing the null
+##'     hypothesis that the low-frequency modulation of the
+##'     correlations of the variables with tree-growth can be
+##'     considered as noise.
 ##' @references Gershunov, A., N. Schneider, and
-##' T. Barnett. 2001. Low-frequency modulation of the ENSO-Indian
-##' Monsoon rainfall relationship: Signal or noise? Journal of Climate
-##' 14:2486-2492.
+##'     T. Barnett. 2001. Low-frequency modulation of the ENSO-Indian
+##'     Monsoon rainfall relationship: Signal or noise? Journal of
+##'     Climate 14:2486-2492.
 ##' @examples
 ##' \dontrun{
 ##' dc_cor <- dcc(muc_spruce, muc_clim, 3:9, method = "cor", moving = TRUE)
@@ -43,7 +40,7 @@
 ##' }
 ##' @keywords test
 ##' @export
-g_test <- function(x, boot = FALSE, ci = 0.05, sb = TRUE) {
+g_test <- function(x, boot = FALSE, sb = TRUE) {
   if (!any(class(x) != "tc_dcc"))
     stop("Please provide output of function `dcc`.")
 
@@ -51,8 +48,11 @@ g_test <- function(x, boot = FALSE, ci = 0.05, sb = TRUE) {
     stop("Gershunov test can only be computed for moving correlations.")
   
   if (length(pmatch(x$call$method, "correlation")) == 0)
-    stop("Gershunov test is currently only implemented for running correlation functions, not for response function.")
-  
+      stop("Gershunov test is currently only implemented for running correlation functions, not for response function.")
+
+  ## number of bootstrap resamples
+  niter <- 500
+
   ## get parameters for moving correlation function from call
   .win_size <- ifelse(is.null(x$call$win_size), 25, x$call$win_size)
   .win_offset <- ifelse(is.null(x$call$win_offset), 1, x$call$win_offset)
@@ -65,13 +65,9 @@ g_test <- function(x, boot = FALSE, ci = 0.05, sb = TRUE) {
   n <- length(c0)
   m <- length(x$truncated$tree)
   
-  ## get ci limits
-  if (!any(ci == c(0.01, 0.05, 0.1)))
-    stop("`ci` has to be one of 0.01, 0.05, or 0.1.")
-  limits <- switch(as.character(ci),
-                   "0.01" = c(5, 995),
-                   "0.05" = c(25, 975),
-                   "0.1" = c(50, 950))
+  ## get unexplained variance by model
+  prediction <- rowSums(t(t(scale(x$design$aggregate)) * c0))
+  unex <- 1 - var(prediction)
   
   ## overwrite .boot, if set to FALSE for g-test (default)
   if (!boot)
@@ -91,7 +87,7 @@ g_test <- function(x, boot = FALSE, ci = 0.05, sb = TRUE) {
                sb = FALSE,
                ci = 0.05)
     })
-    dur1000 <- ceiling(dur[3] * 1000 / 60)
+    dur1000 <- ceiling(dur[3] * niter / 60)
     cat("Running this test with bootstrapping on the individual correlations enabled will take around", dur1000, "minutes.\n")
     ans <- readline("Do you really want to run this? [Y/n]\n")
     if (ans != "Y")
@@ -114,26 +110,23 @@ g_test <- function(x, boot = FALSE, ci = 0.05, sb = TRUE) {
   ## get sd of parameters for original run
   sd0 <- apply(x$coef$coef, 1, sd)
   
-  ## for each c0, simulate 1000 pairs of random time series
-  sds <- matrix(NA, ncol = 1000, nrow = n)
+  ## for each c0, simulate niter pairs of random time series
+  sds <- matrix(NA, ncol = niter, nrow = n)
   
   if (sb)                            # initialize status bar (if TRUE)
-    mpb <- txtProgressBar(min = 1,  max = 1000, style = 3)
-  
-  for (i in 1:1000) {
+      mpb <- txtProgressBar(min = 1,  max = niter, style = 3)
+
+  for (i in 1:niter) {
     ## model tree-ring series (gamma2) as linear combination of
-    ## climate (gamma1) + error terms representing the variance
-    ## unexplained by each parameter
+    ## climate (gamma1) + error term representing the variance
+      ## unexplained by original model
     gamma1 <- matrix(rnorm(n * m, 0, 1), nrow = m)
-    gamma2 <- matrix(NA, ncol = n, nrow = m)
-    for (j in 1:n) {
-      gamma2[,j] <- c0[j] * gamma1[,j] + rnorm(m, 0, 1 - c0[j]^2)
-    }
-    gamma2 <- rowSums(gamma2)
-    
+    rownames(gamma1) <- rownames(x$design$aggregate)
+    gamma2 <- rowSums(t(t(gamma1) * c0)) + rnorm(m, 0, sd = sqrt(unex))
+      
     gamma1l <- list(aggregate = gamma1,
-                    names = x$design$names,
-                    pretty_names = x$design$pretty_names)
+                   names = x$design$names,
+                   pretty_names = x$design$pretty_names)
     
     ## throw data into the _same_ moving correlation function
     c1 <- tc_mfunc(gamma2, gamma1l,
@@ -151,22 +144,17 @@ g_test <- function(x, boot = FALSE, ci = 0.05, sb = TRUE) {
       setTxtProgressBar(mpb, i)
   }  
   
-  ## calculate CIs for sd of correlation coefficients
-  ci_lower <- apply(sds, 1, function(x) sort(x)[limits[1]])
-  ci_upper <- apply(sds, 1, function(x) sort(x)[limits[2]])
-  
-  ## significantly different fluctuation?
-  sig_fluc_higher <- sd0 > ci_upper
-  sig_fluc_lower <- sd0 < ci_lower
-  sig_fluc_none <- sd0 <= ci_upper & sd0 >= ci_lower
+  ## calculate p values from cumulative density function
+  ps <- numeric(n)
+  for (i in 1:n) {
+      ps[i] <- ecdf(sds[i,])(sd0[i])
+  }
   
   ## prepare output
   out <- data.frame(
-    varname = x$design$pretty_names$varname,
-    month = x$design$pretty_names$month_label,
-    higher = sig_fluc_higher,
-    lower = sig_fluc_lower,
-    noise = sig_fluc_none
+    varname = rev(x$design$pretty_names$varname),
+    month = rev(x$design$pretty_names$month_label),
+    p = rev(1 - ps)
     )
   
   if (sb)                               # close status bar (if TRUE)
