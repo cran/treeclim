@@ -1,4 +1,4 @@
-466a75631e642520fe5f80fffc423c27 *DESCRIPTION
+f10868597b275e9e7ee9d18b28797a59 *DESCRIPTION
 f02a6e14ce1d06179389cccd9d62ce91 *NAMESPACE
 f5433279d69609706618d01d262da430 *R/RcppExports.R
 643b38eb4c39353ab630d59c040a4d4c *R/abbrev_name.R
@@ -11,7 +11,7 @@ ab2a043aee7e13a0ea92fabef5e68ce5 *R/dcc.R
 bcc6177a751121c2956a17acbdde2f1c *R/exclude_from.R
 46807b32b9d885b2554d98396992a226 *R/format_months.R
 fb25815fc31d93e110df3d30c2433189 *R/generics.R
-34a07c356cce8756cc5bbe1b3143a324 *R/gershunov.R
+cb29cc2c201c7c63396ad93cec6259af *R/gershunov.R
 d6bc57eb2a2b4fff02b43cc0d92c0a61 *R/init_boot_data.R
 518c608f01fc39c1cd376781f1708c3c *R/is_continuous.R
 dde599fd3c9cec534dbd4a8b3ee94e1f *R/make_pmat.R
@@ -39,7 +39,7 @@ b68a6e994cf7c6ec65517bf0e5ddb152 *data/rt_temp.rda
 c557a81726fffa32b0c81b03e9454db0 *data/spain_prec.rda
 a70fc7ce17d80f2ea78019b3bf0b7da7 *data/spain_temp.rda
 401c2a5cece09731cd93c8dde70379bb *inst/CITATION
-0938142f8b4284ba8bfcc01098b4710e *inst/Changelog
+a26b99b01d60384aafaccafdc5cc72b8 *inst/Changelog
 cec03c14a5f876ae1378b85a56f58059 *man/abbrev_name.Rd
 64a10eeda9194b84947b6ed5f613f9f5 *man/as_tcclimate.Rd
 b1f9fedbc179157d2de2584a79b97704 *man/check_months.Rd
