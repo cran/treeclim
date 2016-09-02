@@ -1,4 +1,4 @@
-##' moving response and correlation function
+##' evolving response and correlation function
 ##' 
 ##' see doc for dcc for details.
 ##' @param chrono tree-ring chronology
@@ -6,25 +6,23 @@
 ##' @param boot which bootstrapping method should be used? (or "none")
 ##' @param sb logical: draw statusbar or not?
 ##' @param start_last logical: start with last (oldest) window?
-##' @param win_size numeric: size of the moving windows in years
-##' @param win_offset numeric: size of offset between moving windows
-##'   in years
+##' @param win_size numeric: size of the first window in years
 ##' @param ci numeric: p-level for confidence interval (must be in
-##'   c(0.1, 0.05, 0.01)
+##' c(0.1, 0.05, 0.01)
 ##' @param method character: method to be used (one of "response" or
-##'   "correlation")
+##' "correlation")
 ##' @param p probability for rgeom, that determines distribution of
-##'   sampling blocks for stationary bootstrap scheme
+##' sampling blocks for stationary bootstrap scheme
 ##' @keywords internal
-tc_mfunc <- function(chrono, climate, boot, sb, start_last,
-                     win_size, win_offset, ci, method) {
-  
+tc_efunc <- function(chrono, climate, boot, sb, start_last,
+                     win_size, ci, method) {
+
   vnames <- climate$names
   pretty_names <- climate$pretty_names
   ## number of windows
   years <- as.numeric(rownames(climate$aggregate))
   nyears <- length(years)
-  win_num <- floor((nyears - win_size + 1) / win_offset)
+  win_num <- nyears - win_size + 1
   if (win_num < 2) {
     stop(paste("Less than 2 windows. Consider a timespan greater than ",
                nyears, " or a win_size smaller than ", win_size, ".",
@@ -43,12 +41,9 @@ tc_mfunc <- function(chrono, climate, boot, sb, start_last,
 
   for (k in 1:win_num) {
     if (start_last) {
-      series_subset_index <- ((nyears - ((k-1) * win_offset)) -
-                              (win_size - 1)):(nyears - ((k-1) * win_offset))
+      series_subset_index <- (nyears - win_size - k + 2):nyears
     } else {
-      series_subset_index <- (1 + ((k-1) * win_offset)):(1 + ((k-1) *
-                                                              win_offset) +
-                                                         (win_size - 1))
+      series_subset_index <- 1:(win_size + k - 1)
     }
     
     climate_win <- climate$aggregate[series_subset_index,]
@@ -75,7 +70,7 @@ tc_mfunc <- function(chrono, climate, boot, sb, start_last,
     result_matrix_ci_lower[,k] <- window$result$ci_lower
     result_matrix_significant[,k] <- window$result$significant
     win_years_string[k] <- paste(years[series_subset_index][1],
-                                 years[series_subset_index][win_size],
+                                 tail(years[series_subset_index], 1),
                                  sep = "-")
     
     if (sb)                             # update status bar (if TRUE)
@@ -112,6 +107,6 @@ tc_mfunc <- function(chrono, climate, boot, sb, start_last,
   
   if (sb)                               # close status bar (if TRUE)
     close(mpb)
-  class(out$result) <- c("tc_mcoef", "list")
+  class(out$result) <- c("tc_ecoef", "list")
   out
 }

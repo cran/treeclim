@@ -4,7 +4,8 @@
 ##' modulations in the relationship between climate and tree-growth
 ##' are significantly stronger or weaker than could be expected by
 ##' chance.
-##' @details This function is a multivariate extension of the test for
+##'
+##' This function is a multivariate extension of the test for
 ##' spurious low-frequency modulations for moving correlations of time
 ##' series as proposed by Gershunov et al. (2001). In short, 1000
 ##' simulations of random data sets are generated, where the climate
@@ -20,9 +21,10 @@
 ##' compared to the bootstrapped distribution of the standard
 ##' deviation of the simulated data to test for significantly higher
 ##' or lower low-frequency modulations.
+##'
 ##' @param x an object of class '"tc_dcc"' as returned from a call to
 ##'     \code{\link{dcc}} with moving correlations enabled
-##' @param boot \code{logical} shall the individual correlation be
+##' @param boot \code{logical} shall the individual correlations be
 ##'     bootstrapped?  (see details)
 ##' @param sb \code{logical} shall a status bar be drawn?
 ##' @return a \code{data.frame} with p values for the testing the null
@@ -44,8 +46,8 @@ g_test <- function(x, boot = FALSE, sb = TRUE) {
   if (!any(class(x) != "tc_dcc"))
     stop("Please provide output of function `dcc`.")
 
-  if (is.null(x$call$moving) || x$call$moving == FALSE)
-    stop("Gershunov test can only be computed for moving correlations.")
+  if (is.null(x$call$dynamic) || x$call$dynamic != "moving")
+    stop("Gershunov test can only be computed for moving correlations (parameter `dynamic` set to 'moving'.")
   
   if (length(pmatch(x$call$method, "correlation")) == 0)
       stop("Gershunov test is currently only implemented for running correlation functions, not for response function.")

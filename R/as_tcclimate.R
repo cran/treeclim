@@ -114,8 +114,12 @@ as_tcclimate <- function(x, varnames = NULL) {
     if (length(varnames) == dim(output[2])) {
       colnames(output)[-c(1,2)] <- varnames
     } else {
-      stop("`varnames` has to be of the same length as the number of parameters.")
+      stop("`var_names` has to be of the same length as the number of parameters.")
     }
+  }
+  
+  if (is.null(varnames) & !is.null(names(x)) & (class(x) == "list")) {
+    colnames(output)[-c(1,2)] <- names(x)
   }
 
   class(output) <- c("tc_climate", "data.frame")

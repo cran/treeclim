@@ -1,70 +1,60 @@
 ##' Seasonal (partial) correlation analysis
 ##' 
-##' Calculate seasonal correlation with primary and secondary climate variables
-##' and tree-ring data, similar to the seascorr function for MATLAB.
-##' @details This function mimicks the behaviour of the MATLAB function seascorr
-##'   (Meko et al. 2011), which calculates partial correlations of tree-ring
-##'   data with a primary and a secondary climatic variable for seasons of
-##'   different lengths.
-##'   
-##'   Input chronology data can be a \code{data.frame} such as produced by
-##'   function \code{chron} of package dplR. It has to be a \code{data.frame}
-##'   with at least one column containing the tree-ring indices, and the
-##'   corresponding years as \code{rownames}.
-##'   
-##'   For climatic input data, there are three possibilities: Firstly, input
-##'   climatic data can be a \code{data.frame} or \code{matrix} consisting of at
-##'   least 3 rows for years, months and at least one climate parameter in the
-##'   given order. Secondly, input climatic data can be a single
-##'   \code{data.frame} or \code{matrix} in the style of the original
-##'   DENDROCLIM2002 input data, i.e. one parameter with 12 months in one row,
-##'   where the first column represents the year. Or thirdly, input climatic
-##'   data can be a list of several of the latter described \code{data.frame} or
-##'   \code{matrices}. As an internal format dispatcher checks the format
-##'   automatically, it is absolutely necessary that in all three cases, only
-##'   complete years (months 1-12) are provided. It is not possible to mix
-##'   different formats in one go.
-##'   
-##'   The `complete` parameter specifies the months of the current year in which
-##'   tree-growth is assumed to finish. This month marks the last month of the
-##'   first season, and starting from here, 14 different seasons are computed
-##'   for each specified season length in one-month steps. E.g., for a starting
-##'   value of 9 (current September) and season length of 3 months, the first
-##'   season comprises current July to current September, the second season 
-##'   comprises current June to current August, and the last season comprises
-##'   previous June to previous August. This results in 14 seasons for a given
-##'   season length. An arbitrary number of season lengths can be specified.
-##'   
-##'   The choice for primary vs. secondary variable can be made either via
-##'   numeric selection (the integer value 1 stands for the first variable in
-##'   the supplied climate data set), or by name ("temp", when one of the
-##'   variables is named "temp"). The correlation of the primary variable with
-##'   tree-growth is computed as the simple (Pearson) correlation coefficient,
-##'   while the influence of the secondary variable on tree-growth is computed
-##'   with the influence of the primary variable on tree-growth removed.
-##'   
-##'   Like in the original seascorr program, the significance of each (partial)
-##'   correlation is evaluated using exact bootstrapping by circulant embedding
-##'   of the tree-ring data (Percival \& Constantine, 2006).
+##' Calculate seasonal correlation with primary and secondary climate
+##' variables and tree-ring data, similar to the seascorr function for
+##' MATLAB.
 ##' 
-##' @param chrono \code{data.frame} containing a tree-ring
-##'   chronologies, e.g. as obtained by \code{chron} of package dplR.
-##' 
-##' @param climate either a \code{data.frame} or \code{matrix} with
-##'   climatic data in monthly resolution, with year, month and
-##'   climate parameters in columns (all columns except year and month
-##'   will be recognized as parameters for response or correlation
-##'   function), or a single \code{data.frame} or \code{matrix} in
-##'   13-column format (see below), or a list of several of the
-##'   latter.
-##' 
-##' @param var_names \code{character} vector with variable
-##'   names. Defaults to corresponding column names of
-##'   \code{data.frame} clim.
-##' 
-##' @param timespan \code{integer} vector of length 2 specifying the
-##'   time interval (in years) to be considered for analysis. Defaults
-##'   to the maximum possible interval.
+##' This function mimicks the behaviour of the MATLAB function
+##' seascorr (Meko et al. 2011), which calculates partial correlations
+##' of tree-ring data with a primary and a secondary climatic variable
+##' for seasons of different lengths.
+##'   
+##' Input chronology data can be a \code{data.frame} such as produced
+##' by function \code{chron} of package dplR. It has to be a
+##' \code{data.frame} with at least one column containing the
+##' tree-ring indices, and the corresponding years as \code{rownames}.
+##'   
+##' For climatic input data, there are three possibilities: Firstly,
+##' input climatic data can be a \code{data.frame} or \code{matrix}
+##' consisting of at least 3 rows for years, months and at least one
+##' climate parameter in the given order. Secondly, input climatic
+##' data can be a single \code{data.frame} or \code{matrix} in the
+##' style of the original DENDROCLIM2002 input data, i.e. one
+##' parameter with 12 months in one row, where the first column
+##' represents the year. Or thirdly, input climatic data can be a list
+##' of several of the latter described \code{data.frame} or
+##' \code{matrices}. As an internal format dispatcher checks the
+##' format automatically, it is absolutely necessary that in all three
+##' cases, only complete years (months 1-12) are provided. It is not
+##' possible to mix different formats in one go.
+##'   
+##' The `complete` parameter specifies the months of the current year
+##' in which tree-growth is assumed to finish. This month marks the
+##' last month of the first season, and starting from here, 14
+##' different seasons are computed for each specified season length in
+##' one-month steps. E.g., for a starting value of 9 (current
+##' September) and season length of 3 months, the first season
+##' comprises current July to current September, the second season
+##' comprises current June to current August, and the last season
+##' comprises previous June to previous August. This results in 14
+##' seasons for a given season length. An arbitrary number of season
+##' lengths can be specified.
+##'   
+##' The choice for primary vs. secondary variable can be made either
+##' via numeric selection (the integer value 1 stands for the first
+##' variable in the supplied climate data set), or by name ("temp",
+##' when one of the variables is named "temp"). The correlation of the
+##' primary variable with tree-growth is computed as the simple
+##' (Pearson) correlation coefficient, while the influence of the
+##' secondary variable on tree-growth is computed with the influence
+##' of the primary variable on tree-growth removed.
+##'   
+##' Like in the original seascorr program, the significance of each
+##' (partial) correlation is evaluated using exact bootstrapping by
+##' circulant embedding of the tree-ring data (Percival \&
+##' Constantine, 2006).
+##'
+##' @inheritParams dcc
 ##'
 ##' @param complete \code{integer} scalar, month when tree-ring growth
 ##'   is expected to have finished.
@@ -77,10 +67,6 @@
 ##' 
 ##' @param secondary position \code{numeric} or name \code{character}
 ##'   of secondary climate variable
-##' 
-##' @param ci \code{numeric} scalar to set the test level for
-##'   significance test (values 0.01, 0.05 and 0.1 are allowed); the
-##'   confidence intervals are adapted accordingly.
 ##' 
 ##' @return 'seascorr' returns an 'object' of class '"tc_seascorr"'.
 ##'
@@ -116,7 +102,7 @@
 ##' sc
 ##' plot(sc)
 ##' @author Christian Zang; the procedure incl. exact bootstrapping
-##' was was implemented first by Dave Meko in MA
+##' was implemented first by Dave Meko in MATLAB
 ##' @export
 seascorr <- function(chrono, climate, var_names = NULL, timespan =
                      NULL, complete = 9, season_lengths = c(1, 3, 6),
@@ -126,22 +112,12 @@ seascorr <- function(chrono, climate, var_names = NULL, timespan =
   if (!any(1:12 == complete))
     stop("`complete` must be an integer value between 1 and 12.")
 
-  if (!all(sapply(season_lengths, function(x) any(1:12 == x))))
-    stop("`season_lengths` must be a vector of integers between 1 and 12.")
+  if (!all(sapply(season_lengths, function(x) any(1:24 == x))))
+    stop("`season_lengths` must be a vector of integers between 1 and 24.")
 
-  if (!any(c(0.01, 0.05, 0.1) == ci))
-    stop("`ci` must be any of 0.01, 0.05, or 0.1.")
+  check_ci(ci)
   
-  climate <- as_tcclimate(climate)
-  ## when var_names are supplied, apply appropriately
-  if (!is.null(var_names)) {
-    varno <- dim(climate)[2] - 2
-    if (length(var_names) != varno) {
-      stop("Count of supplied variable names does not match count of variables in climate data.")
-    } else {
-      names(climate)[3:(dim(climate)[2])] <- var_names
-    }
-  }
+  climate <- apply_var_names(as_tcclimate(climate), var_names)
 
   ## Makes no sense for less than 2 climate variables
   if (dim(climate)[2] < 4) {
@@ -193,19 +169,27 @@ seascorr <- function(chrono, climate, var_names = NULL, timespan =
   if (primary_name == secondary_name) {
     stop("Primary and secondary variable are identical.")
   }
+  
+  ## get minimum month from start month and seasons
+  if (complete > 2) {
+    startmonth <- -1 * complete + 2
+  } else {
+    startmonth <- complete - 15
+  }
+  
+  ## no more precision needed for truncating input
+  if (startmonth + max(season_lengths) < 0) {
+    minmonth <- -1
+  } else {
+    minmonth <- -13
+  }
 
   ## truncate climate and tree-ring data to common or specified
   ## time span
   truncated_input <- truncate_input(chrono, climate,
-                                    timespan = timespan, 1,
-                                    moving = FALSE)
-
-  ## create raw parameter matrix
-  if (truncated_input$pad) {
-    # we have no climate data for previous year, but use maximum overlap -> cut
-    # tree data accordingly
-    truncated_input$chrono <- truncated_input$chrono[-1]
-  }
+                                    timespan = timespan,
+                                    minmonth = minmonth,
+                                    dynamic = "static")
   
   m <- length(truncated_input$chrono)
   
@@ -214,23 +198,23 @@ seascorr <- function(chrono, climate, var_names = NULL, timespan =
   if (m < 31)
     stop("Seasonal correlation analysis needs at least 31 years of data overlap for proxy and climate data.")
   
-  pmat <- make_pmat(truncated_input$climate, pad = FALSE)
+  pmat <- make_pmat(truncated_input$climate, pad = truncated_input$pad)
 
   ## create seasons, a list entry for each season_length
   seasons1 <- seasons2 <- list()
   n <- length(season_lengths)
   first_month <- -1 * complete + 1
   last_month <- complete
-
-  ## check if largest season spec is feasible
-  if (first_month + max(season_lengths) > 0) {
-    maxval <- abs(first_month)
-    stop(paste("Largest season length is too long. Maximum value is ",
-               maxval, ".", sep = ""))
-  }
-
-  lmonths <- c(-1:-12, 1:12)
+  
+  lmonths <- c(-13:-24, -1:-12, 1:12)
   last_month_index <- which(lmonths == last_month)
+
+  ## check if largest season spec is feasible is not necessary anymore,
+  ## we just limit it to 21
+  
+  if (max(season_lengths) > 21) {
+    stop("The maximum season length is 21 months.")
+  }
 
   for (i in 1:n) {
     .season_length <- season_lengths[i]
