@@ -4,8 +4,9 @@
 \alias{seascorr}
 \title{Seasonal (partial) correlation analysis}
 \usage{
-seascorr(chrono, climate, var_names = NULL, timespan = NULL, complete = 9,
-  season_lengths = c(1, 3, 6), primary = 1, secondary = 2, ci = 0.05)
+seascorr(chrono, climate, var_names = NULL, timespan = NULL,
+  complete = 9, season_lengths = c(1, 3, 6), primary = 1,
+  secondary = 2, ci = 0.05)
 }
 \arguments{
 \item{chrono}{\code{data.frame} containing a tree-ring
@@ -124,10 +125,6 @@ sc <- seascorr(muc_fake, muc_clim)
 sc
 plot(sc)
 }
-\author{
-Christian Zang; the procedure incl. exact bootstrapping
-was implemented first by Dave Meko in MATLAB
-}
 \references{
 Meko DM, Touchan R, Anchukaitis KJ (2011) Seascorr: A MATLAB
   program for identifying the seasonal climate signal in an annual
@@ -137,4 +134,7 @@ Percival DB, Constantine WLB (2006) Exact simulation of Gaussian
   Time Series from Nonparametric Spectral Estimates with
   Application to Bootstrapping. Statistics and Computing 16:25-35
 }
-
+\author{
+Christian Zang; the procedure incl. exact bootstrapping
+was implemented first by Dave Meko in MATLAB
+}
