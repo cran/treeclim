@@ -1,9 +1,9 @@
-6b9f23578456ae3d6fda58b3596e6932 *DESCRIPTION
+e785ada68122fbb7b05a72c57e1d4b46 *DESCRIPTION
 53cc125ed9c3338c044272ee9c547fca *NAMESPACE
 f59380a477f7acfa9db05ba551604355 *R/RcppExports.R
 a2bf7a43fff09fd3032e7ac07e7b5893 *R/abbrev_name.R
 ceb8195fcdc313973d7a405ab217e6da *R/apply_var_names.R
-8f293ca43a62b9ae5954ba22a946124e *R/as_tcclimate.R
+adf09f043a1e4e264f30488911c152a8 *R/as_tcclimate.R
 28c87bf7fab386195994bd3eef47c4e9 *R/check_ci.R
 ea45e7ac145e123a4a2db07bbd50e1eb *R/check_months.R
 879c43a5c193774b418970f8595ff404 *R/correct_continuous.R
@@ -91,7 +91,7 @@ dda2087ddde8f2d4e003c700ff4ede9d *man/traceplot.Rd
 51030f762fc33967fa1437512fce0d4d *man/unify_selection.Rd
 95a5e0dc5dbdec9c251c142cb4cad286 *src/Makevars
 f603b42fbb7bd836dc0b434fe7f50d81 *src/Makevars.win
-ddbc03e0828c5dfff266fcedb0d01970 *src/RcppExports.cpp
+14fdc05a61663515dbbd1484726d6111 *src/RcppExports.cpp
 8ed9f4a9d40c2a5c12ba577367ba5204 *src/corfun.cpp
 746fb77c3b22cfae960349d23e15588c *src/corfun_exact.cpp
 0be6d3e0cca4e01bb46b7c18dad7cf13 *src/corfun_noboot.cpp

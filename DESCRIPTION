@@ -1,10 +1,10 @@
 Package: treeclim
 Type: Package
 Title: Numerical Calibration of Proxy-Climate Relationships
-Version: 2.0.5.1
-Date: 2020-09-29
+Version: 2.0.6.0
+Date: 2022-02-08
 Authors@R: c(person("Christian", "Zang", role = c("aut", "cre", "cph", "trl"),
-    email = "christian.zang@wzw.tum.de"), person("Franco", "Biondi", role =
+    email = "christian.zang@hswt.de"), person("Franco", "Biondi", role =
     c("ctb", "cph")))
 Depends: R (>= 3.0.2), base, stats, utils, Rcpp (>= 0.10.6)
 Imports: abind, plyr, ggplot2, lmtest, lmodel2, np, boot
@@ -21,9 +21,9 @@ RoxygenNote: 7.1.1
 Encoding: UTF-8
 URL: https://github.com/cszang/treeclim
 BugReports: https://github.com/cszang/treeclim/issues
-Packaged: 2020-10-08 13:18:08 UTC; christian
+Packaged: 2022-02-08 10:44:26 UTC; christian
 Author: Christian Zang [aut, cre, cph, trl],
   Franco Biondi [ctb, cph]
-Maintainer: Christian Zang <christian.zang@wzw.tum.de>
+Maintainer: Christian Zang <christian.zang@hswt.de>
 Repository: CRAN
-Date/Publication: 2020-10-08 13:50:02 UTC
+Date/Publication: 2022-02-08 15:30:02 UTC
